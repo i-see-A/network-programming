@@ -10,10 +10,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -28,7 +26,7 @@ import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 
-public class AtariServer extends JFrame{
+public class AtariServer extends JFrame {
 
 	/**
 	 * 
@@ -50,7 +48,7 @@ public class AtariServer extends JFrame{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					JavaObjServer frame = new JavaObjServer();
+					AtariServer frame = new AtariServer();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,7 +60,7 @@ public class AtariServer extends JFrame{
 	/**
 	 * Create the frame.
 	 */
-	public JavaObjServer() {
+	public AtariServer() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 338, 440);
 		contentPane = new JPanel();
@@ -126,7 +124,7 @@ public class AtariServer extends JFrame{
 					AppendText("현재 참가자 수 " + UserVec.size());
 				} catch (IOException e) {
 					AppendText("accept() error");
-					//System.exit(0);
+					// System.exit(0);
 				}
 			}
 		}
@@ -138,7 +136,7 @@ public class AtariServer extends JFrame{
 		textArea.setCaretPosition(textArea.getText().length());
 	}
 
-	public void AppendObject(ChatMsg msg) {
+	public void AppendObject(InteractMsg msg) {
 		// textArea.append("사용자로부터 들어온 object : " + str+"\n");
 		textArea.append("code = " + msg.code + "\n");
 		textArea.append("id = " + msg.UserName + "\n");
@@ -168,9 +166,25 @@ public class AtariServer extends JFrame{
 			this.client_socket = client_socket;
 			this.user_vc = UserVec;
 			try {
+//				is = client_socket.getInputStream();
+//				dis = new DataInputStream(is);
+//				os = client_socket.getOutputStream();
+//				dos = new DataOutputStream(os);
+
 				oos = new ObjectOutputStream(client_socket.getOutputStream());
 				oos.flush();
 				ois = new ObjectInputStream(client_socket.getInputStream());
+
+				// line1 = dis.readUTF();
+				// /login user1 ==> msg[0] msg[1]
+//				byte[] b = new byte[BUF_LEN];
+//				dis.read(b);		
+//				String line1 = new String(b);
+//
+//				//String[] msg = line1.split(" ");
+//				//UserName = msg[1].trim();
+//				UserStatus = "O"; // Online 상태
+//				Login();
 			} catch (Exception e) {
 				AppendText("userService error");
 			}
@@ -188,7 +202,6 @@ public class AtariServer extends JFrame{
 			String msg = "[" + UserName + "]님이 퇴장 하였습니다.\n";
 			UserVec.removeElement(this); // Logout한 현재 객체를 벡터에서 지운다
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송
-			this.client_socket = null;
 			AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
 		}
 
@@ -201,11 +214,11 @@ public class AtariServer extends JFrame{
 			}
 		}
 		// 모든 User들에게 Object를 방송. 채팅 message와 image object를 보낼 수 있다
-		public void WriteAllObject(ChatMsg obj) {
+		public void WriteAllObject(Object ob) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserService user = (UserService) user_vc.elementAt(i);
 				if (user.UserStatus == "O")
-					user.WriteChatMsg(obj);
+					user.WriteOneObject(ob);
 			}
 		}
 
@@ -238,25 +251,55 @@ public class AtariServer extends JFrame{
 
 		// UserService Thread가 담당하는 Client 에게 1:1 전송
 		public void WriteOne(String msg) {
-			ChatMsg obcm = new ChatMsg("SERVER", "200", msg);
-			WriteChatMsg(obcm);
+			try {
+				// dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+				InteractMsg obcm = new InteractMsg("SERVER", "200", msg);
+				oos.writeObject(obcm);
+			} catch (IOException e) {
+				AppendText("dos.writeObject() error");
+				try {
+//					dos.close();
+//					dis.close();
+					ois.close();
+					oos.close();
+					client_socket.close();
+					client_socket = null;
+					ois = null;
+					oos = null;
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+			}
 		}
 
 		// 귓속말 전송
 		public void WritePrivate(String msg) {
-			ChatMsg obcm = new ChatMsg("귓속말", "200", msg);
-			WriteChatMsg(obcm);
-		}
-		//
-		public void WriteChatMsg(ChatMsg obj) {
 			try {
-			    oos.writeObject(obj.code);
-			    oos.writeObject(obj.UserName);
-			    oos.writeObject(obj.data);
-			    if (obj.code.equals("300")) {
-				    oos.writeObject(obj.imgbytes);
-				    //oos.writeObject(obj.bimg);
-			    }
+				InteractMsg obcm = new InteractMsg("귓속말", "200", msg);
+				oos.writeObject(obcm);
+			} catch (IOException e) {
+				AppendText("dos.writeObject() error");
+				try {
+					oos.close();
+					client_socket.close();
+					client_socket = null;
+					ois = null;
+					oos = null;
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+			}
+		}
+		public void WriteOneObject(Object ob) {
+			try {
+			    oos.writeObject(ob);
 			} 
 			catch (IOException e) {
 				AppendText("oos.writeObject(ob) error");		
@@ -272,105 +315,116 @@ public class AtariServer extends JFrame{
 					e1.printStackTrace();
 				}
 				Logout();
-			
 			}
 		}
 		
-		public ChatMsg ReadChatMsg() {
-			Object obj = null;
-			String msg = null;
-			ChatMsg cm = new ChatMsg("", "", "");
-			// Android와 호환성을 위해 각각의 Field를 따로따로 읽는다.
-			try {
-				obj = ois.readObject();
-				cm.code = (String) obj;
-				obj = ois.readObject();
-				cm.UserName = (String) obj;
-				obj = ois.readObject();
-				cm.data = (String) obj;
-				if (cm.code.equals("300")) {
-					obj = ois.readObject();
-					cm.imgbytes = (byte[]) obj;
-//					obj = ois.readObject();
-//					cm.bimg = (BufferedImage) obj;
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				Logout();
-				e.printStackTrace();
-				return null;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Logout();
-				return null;
-			}
-			return cm;
-		}
 		public void run() {
 			while (true) { // 사용자 접속을 계속해서 받기 위해 while문
-				ChatMsg cm = null; 
-				if (client_socket == null)
-					break;
-				cm = ReadChatMsg();
-				if (cm==null)
-					break;
-				if (cm.code.length()==0)
-					break;
-				AppendObject(cm);
-				if (cm.code.matches("100")) {
-					UserName = cm.UserName;
-					UserStatus = "O"; // Online 상태
-					Login();
-				} else if (cm.code.matches("200")) {
-					String msg = String.format("[%s] %s", cm.UserName, cm.data);
-					AppendText(msg); // server 화면에 출력
-					String[] args = msg.split(" "); // 단어들을 분리한다.
-					if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
-						UserStatus = "O";
-					} else if (args[1].matches("/exit")) {
+				try {
+					// String msg = dis.readUTF();
+//					byte[] b = new byte[BUF_LEN];
+//					int ret;
+//					ret = dis.read(b);
+//					if (ret < 0) {
+//						AppendText("dis.read() < 0 error");
+//						try {
+//							dos.close();
+//							dis.close();
+//							client_socket.close();
+//							Logout();
+//							break;
+//						} catch (Exception ee) {
+//							break;
+//						} // catch문 끝
+//					}
+//					String msg = new String(b, "euc-kr");
+//					msg = msg.trim(); // 앞뒤 blank NULL, \n 모두 제거
+					Object obcm = null;
+					String msg = null;
+					InteractMsg cm = null;
+					if (socket == null)
+						break;
+					try {
+						obcm = ois.readObject();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return;
+					}
+					if (obcm == null)
+						break;
+					if (obcm instanceof InteractMsg) {
+						cm = (InteractMsg) obcm;
+						AppendObject(cm);
+					} else
+						continue;
+					if (cm.code.matches("100")) {
+						UserName = cm.UserName;
+						UserStatus = "O"; // Online 상태
+						Login();
+					} else if (cm.code.matches("200")) {
+						msg = String.format("[%s] %s", cm.UserName, cm.data);
+						AppendText(msg); // server 화면에 출력
+						String[] args = msg.split(" "); // 단어들을 분리한다.
+						if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
+							UserStatus = "O";
+						} else if (args[1].matches("/exit")) {
+							Logout();
+							break;
+						} else if (args[1].matches("/list")) {
+							WriteOne("User list\n");
+							WriteOne("Name\tStatus\n");
+							WriteOne("-----------------------------\n");
+							for (int i = 0; i < user_vc.size(); i++) {
+								UserService user = (UserService) user_vc.elementAt(i);
+								WriteOne(user.UserName + "\t" + user.UserStatus + "\n");
+							}
+							WriteOne("-----------------------------\n");
+						} else if (args[1].matches("/sleep")) {
+							UserStatus = "S";
+						} else if (args[1].matches("/wakeup")) {
+							UserStatus = "O";
+						} else if (args[1].matches("/to")) { // 귓속말
+							for (int i = 0; i < user_vc.size(); i++) {
+								UserService user = (UserService) user_vc.elementAt(i);
+								if (user.UserName.matches(args[2]) && user.UserStatus.matches("O")) {
+									String msg2 = "";
+									for (int j = 3; j < args.length; j++) {// 실제 message 부분
+										msg2 += args[j];
+										if (j < args.length - 1)
+											msg2 += " ";
+									}
+									// /to 빼고.. [귓속말] [user1] Hello user2..
+									user.WritePrivate(args[0] + " " + msg2 + "\n");
+									//user.WriteOne("[귓속말] " + args[0] + " " + msg2 + "\n");
+									break;
+								}
+							}
+						} else { // 일반 채팅 메시지
+							UserStatus = "O";
+							//WriteAll(msg + "\n"); // Write All
+							WriteAllObject(cm);
+						}
+					} else if (cm.code.matches("400")) { // logout message 처리
 						Logout();
 						break;
-					} else if (args[1].matches("/list")) {
-						WriteOne("User list\n");
-						WriteOne("Name\tStatus\n");
-						WriteOne("-----------------------------\n");
-						for (int i = 0; i < user_vc.size(); i++) {
-							UserService user = (UserService) user_vc.elementAt(i);
-							WriteOne(user.UserName + "\t" + user.UserStatus + "\n");
-						}
-						WriteOne("-----------------------------\n");
-					} else if (args[1].matches("/sleep")) {
-						UserStatus = "S";
-					} else if (args[1].matches("/wakeup")) {
-						UserStatus = "O";
-					} else if (args[1].matches("/to")) { // 귓속말
-						for (int i = 0; i < user_vc.size(); i++) {
-							UserService user = (UserService) user_vc.elementAt(i);
-							if (user.UserName.matches(args[2]) && user.UserStatus.matches("O")) {
-								String msg2 = "";
-								for (int j = 3; j < args.length; j++) {// 실제 message 부분
-									msg2 += args[j];
-									if (j < args.length - 1)
-										msg2 += " ";
-								}
-								// /to 빼고.. [귓속말] [user1] Hello user2..
-								user.WritePrivate(args[0] + " " + msg2 + "\n");
-								//user.WriteOne("[귓속말] " + args[0] + " " + msg2 + "\n");
-								break;
-							}
-						}
-					} else { // 일반 채팅 메시지
-						UserStatus = "O";
-						//WriteAll(msg + "\n"); // Write All
+					} else { // 300, 500, ... 기타 object는 모두 방송한다.
 						WriteAllObject(cm);
-					}
-				} else if (cm.code.matches("400")) { // logout message 처리
-					Logout();
-					break;
-				} else if (cm.code.matches("300")) {
-					WriteAllObject(cm);
-				}
+					} 
+				} catch (IOException e) {
+					AppendText("ois.readObject() error");
+					try {
+//						dos.close();
+//						dis.close();
+						ois.close();
+						oos.close();
+						client_socket.close();
+						Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+						break;
+					} catch (Exception ee) {
+						break;
+					} // catch문 끝
+				} // 바깥 catch문끝
 			} // while
 		} // run
 	}
