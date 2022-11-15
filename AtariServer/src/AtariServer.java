@@ -157,7 +157,7 @@ public class AtariServer extends JFrame {
 
 		private Socket client_socket;
 		private Vector<UserService> user_vc;
-		public String UserName = "";
+		public String userName = "";
 		public String UserStatus;
 
 		public UserService(Socket client_socket) {
@@ -177,18 +177,18 @@ public class AtariServer extends JFrame {
 		}
 
 		public void Login() {
-			AppendText("새로운 참가자 " + UserName + " 입장.");
+			AppendText("새로운 참가자 " + userName + " 입장.");
 			WriteOne("Welcome to Java chat server\n");
-			WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
-			String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
+			WriteOne(userName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
+			String msg = "[" + userName + "]님이 입장 하였습니다.\n";
 			WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
 		}
 
 		public void Logout() {
-			String msg = "[" + UserName + "]님이 퇴장 하였습니다.\n";
+			String msg = "[" + userName + "]님이 퇴장 하였습니다.\n";
 			UserVec.removeElement(this); // Logout한 현재 객체를 벡터에서 지운다
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송
-			AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
+			AppendText("사용자 " + "[" + userName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
 		}
 
 		// 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
@@ -328,7 +328,7 @@ public class AtariServer extends JFrame {
 					} else
 						continue;
 					if (cm.code.matches("100")) {
-						UserName = cm.userName;
+						userName = cm.userName;
 						UserStatus = "O"; // Online 상태
 						Login();
 					} else if (cm.code.matches("200")) {
@@ -346,7 +346,7 @@ public class AtariServer extends JFrame {
 							WriteOne("-----------------------------\n");
 							for (int i = 0; i < user_vc.size(); i++) {
 								UserService user = (UserService) user_vc.elementAt(i);
-								WriteOne(user.UserName + "\t" + user.UserStatus + "\n");
+								WriteOne(user.userName + "\t" + user.UserStatus + "\n");
 							}
 							WriteOne("-----------------------------\n");
 						} else if (args[1].matches("/sleep")) {
@@ -356,7 +356,7 @@ public class AtariServer extends JFrame {
 						} else if (args[1].matches("/to")) { // 귓속말
 							for (int i = 0; i < user_vc.size(); i++) {
 								UserService user = (UserService) user_vc.elementAt(i);
-								if (user.UserName.matches(args[2]) && user.UserStatus.matches("O")) {
+								if (user.userName.matches(args[2]) && user.UserStatus.matches("O")) {
 									String msg2 = "";
 									for (int j = 3; j < args.length; j++) {// 실제 message 부분
 										msg2 += args[j];

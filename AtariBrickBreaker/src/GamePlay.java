@@ -197,6 +197,4 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener{
 		playerX -= 20;
 	}
 
-	 //게임 플레이할 panel이고, main의 jframe에 들어가야함
-
 }

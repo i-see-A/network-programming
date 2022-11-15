@@ -83,25 +83,24 @@ public class AtariClientMain { //게임타이틀화면
 		btnMulti.setBounds(386, 338, 157, 41);
 		frame.getContentPane().add(btnMulti);
 		
-		Myaction action = new Myaction();//이벤트 리스너 객체 생성
-		btnSingle.addActionListener(action); //이벤트 리스너 등록
-		btnMulti.addActionListener(action); //이벤트 리스너 등록
+		Myaction action = new Myaction();
+		btnSingle.addActionListener(action);
+		btnMulti.addActionListener(action);
 	}
 	
-	class Myaction implements ActionListener { //유저 입력 받으면 서버로, singleButton 누르면 싱글플레이.
+	class Myaction implements ActionListener {
 		
 		@Override
-		public void actionPerformed(ActionEvent e) { //액션 이벤트 발생 시
+		public void actionPerformed(ActionEvent e) {
 			String userName = txtUserName.getText().trim();
-			String ip_addr = "127.0.0.1";
-			String port_no = "30000";
+			String ip_addr = "127.0.0.1"; //은서:우선 로컬에서만 돌아가게 했음.
+			String port_no = "30000"; //은서: 나중에 필요하면 ip랑 port번호 쓰는 거 놔야하나...?
 			JButton btn = (JButton)e.getSource();
-			Main game = new Main();
 			
-			if (userName.length() ==0) {
-				System.out.println("이름 입력 안되었을 때");
+			if (userName.length() ==0) { //userName 입력 안되었을 시
 				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
 			} else {
+				Main game = new Main(userName, ip_addr, port_no);
 				if (btn.getText().equals("Single")) {	
 					game.runGame();
 				}
@@ -110,7 +109,6 @@ public class AtariClientMain { //게임타이틀화면
 				}
 				frame.setVisible(false);
 			}
-			
 	   }
 	}
 }
