@@ -1,22 +1,20 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
 import java.awt.Color;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import javax.swing.JLabel;
+import java.awt.EventQueue;
 import java.awt.Font;
-import javax.swing.SwingConstants;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class AtariClientMain { //게임타이틀화면
 
 	private JFrame frame;
 	private JTextField txtUserName;
-
 	/**
 	 * Launch the application.
 	 */
@@ -76,8 +74,6 @@ public class AtariClientMain { //게임타이틀화면
 		btnSingle.setVerticalAlignment(SwingConstants.TOP);
 		btnSingle.setFont(new Font("CookieRun Bold", Font.PLAIN, 24));
 		btnSingle.setBackground(new Color(192, 192, 192));
-		Myaction action = new Myaction();
-		btnSingle.addActionListener(action);
 		frame.getContentPane().add(btnSingle);
 		
 		JButton btnMulti = new JButton("Multi");
@@ -85,20 +81,36 @@ public class AtariClientMain { //게임타이틀화면
 		btnMulti.setFont(new Font("CookieRun Bold", Font.PLAIN, 24));
 		btnMulti.setBackground(Color.LIGHT_GRAY);
 		btnMulti.setBounds(386, 338, 157, 41);
-		
 		frame.getContentPane().add(btnMulti);
 		
-		
+		Myaction action = new Myaction();//이벤트 리스너 객체 생성
+		btnSingle.addActionListener(action); //이벤트 리스너 등록
+		btnMulti.addActionListener(action); //이벤트 리스너 등록
 	}
 	
 	class Myaction implements ActionListener { //유저 입력 받으면 서버로, singleButton 누르면 싱글플레이.
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Main game = new Main(); //Atari single game play
-
-		}
 		
+		@Override
+		public void actionPerformed(ActionEvent e) { //액션 이벤트 발생 시
+			String userName = txtUserName.getText().trim();
+			String ip_addr = "127.0.0.1";
+			String port_no = "30000";
+			JButton btn = (JButton)e.getSource();
+			Main game = new Main();
+			
+			if (userName.length() ==0) {
+				System.out.println("이름 입력 안되었을 때");
+				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
+			} else {
+				if (btn.getText().equals("Single")) {	
+					game.runGame();
+				}
+				else if (btn.getText().equals("Multi")) {	
+					game.runGame();
+				}
+				frame.setVisible(false);
+			}
+			
+	   }
 	}
-
 }

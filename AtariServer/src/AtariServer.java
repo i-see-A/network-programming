@@ -139,7 +139,7 @@ public class AtariServer extends JFrame {
 	public void AppendObject(InteractMsg msg) {
 		// textArea.append("사용자로부터 들어온 object : " + str+"\n");
 		textArea.append("code = " + msg.code + "\n");
-		textArea.append("id = " + msg.name + "\n");
+		textArea.append("id = " + msg.userName + "\n");
 		textArea.append("data = " + msg.code + "\n");
 		textArea.setCaretPosition(textArea.getText().length());
 	}
@@ -328,11 +328,11 @@ public class AtariServer extends JFrame {
 					} else
 						continue;
 					if (cm.code.matches("100")) {
-						UserName = cm.name;
+						UserName = cm.userName;
 						UserStatus = "O"; // Online 상태
 						Login();
 					} else if (cm.code.matches("200")) {
-						msg = String.format("[%s] %s", cm.name, cm.code);
+						msg = String.format("[%s] %s", cm.userName, cm.code);
 						AppendText(msg); // server 화면에 출력
 						String[] args = msg.split(" "); // 단어들을 분리한다.
 						if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.

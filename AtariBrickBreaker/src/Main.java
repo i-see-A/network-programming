@@ -1,8 +1,12 @@
 import javax.swing.*;
 
 public class Main {
+	public Main() {
+		System.out.println("Atari Main");
+	}
 
-	public static void main(String[] args) {
+	//public static void main(String[] args) {
+	public void runGame() {
 		//빈 배경 만들기
 		JFrame obj = new JFrame();
 		GamePlay gamePlay = new GamePlay(); //게임 플레이 화면 넣어주기

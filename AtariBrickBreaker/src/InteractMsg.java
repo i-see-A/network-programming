@@ -4,14 +4,14 @@ import java.io.Serializable;
 
 class InteractMsg implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
-	private String name; //유저이름
-	private String code; //프로토콜 코드 100: 로그인
-	//필요에 따라 더 추가
-	
-	public InteractMsg(String name, String code) {
-		this.name = name;
+
+	public String userName; // 유저이름
+	public String code; // 프로토콜 코드 100: 로그인
+	// 필요에 따라 더 추가
+
+	public InteractMsg(String userName, String code) {
+		this.userName = userName;
 		this.code = code;
 	}
-	
+
 }
