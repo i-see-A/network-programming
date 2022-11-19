@@ -101,14 +101,16 @@ public class AtariClientMain { //게임타이틀화면
 				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
 			} else {
 				Main game = new Main(userName, ip_addr, port_no);
-				if (btn.getText().equals("Single")) {	
+				if (btn.getText().equals("Single")) {
 					game.runGame();
 				}
-				else if (btn.getText().equals("Multi")) {	
-					game.runGame();
+				else if (btn.getText().equals("Multi")) {
+					game.goToLobby();
 				}
 				frame.setVisible(false);
 			}
 	   }
 	}
 }
+
+

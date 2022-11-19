@@ -20,7 +20,7 @@ public class Main extends JFrame{ //여기서 이제 서버랑 통신을 합니�
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	
-	public Main(String userName, String ip_addr, String port_no) { //여기서 서버에다가 보내야 하는거지...
+	public Main(String userName, String ip_addr, String port_no) {
 		try {
 			socket = new Socket(ip_addr, Integer.parseInt(port_no));
 			oos = new ObjectOutputStream(socket.getOutputStream());
@@ -50,16 +50,27 @@ public class Main extends JFrame{ //여기서 이제 서버랑 통신을 합니�
 	 * Atari 게임 시작
 	 */
 	public void runGame() {
-		JFrame obj = new JFrame();//빈 배경 만들기
 		GamePlay gamePlay = new GamePlay(); //게임 플레이 화면 넣어주기
 		
-		obj.setBounds(10,10,700,600); //background 크기
-		obj.setTitle("Atari Break-out");
-		obj.setResizable(false); //크기 바꾸는거 disable
-		obj.setVisible(true); //보이게
-		obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //ㅡㅁx
+		setBounds(10,10,700,600); //background 크기
+		setTitle("Atari Break-out");
+		setResizable(false); //크기 바꾸는거 disable
+		setVisible(true); //보이게
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //ㅡㅁx
 		
-		obj.add(gamePlay);
+		add(gamePlay);
+	}
+	
+	public void goToLobby(){ //Multi 플레이 시, 대기실 화면으로 넘어감.
+		Lobby lobby = new Lobby();
+			
+		setBounds(10,10,720,480);
+		setTitle("Atari Break-out");
+		setResizable(false);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		add(lobby);
 	}
 
 }

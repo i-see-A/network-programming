@@ -157,7 +157,7 @@ public class AtariServer extends JFrame {
 
 		private Socket client_socket;
 		private Vector<UserService> user_vc;
-		public String userName = "";
+		public String userName = ""; //타이틀 화면에서 입력한 이름
 		public String UserStatus;
 
 		public UserService(Socket client_socket) {
