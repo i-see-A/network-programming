@@ -39,6 +39,7 @@ public class AtariServer extends JFrame {
 	private ServerSocket socket; // 서버소켓
 	private Socket client_socket; // accept() 에서 생성된 client 소켓
 	private Vector<UserService> UserVec = new Vector<UserService>(); // 연결된 사용자를 저장할 벡터
+	private Vector<RoomService> RoomVec = new Vector<RoomService>(); //생성된 방을 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	/**
@@ -146,7 +147,7 @@ public class AtariServer extends JFrame {
 
 	// User 당 생성되는 Thread
 	// Read One 에서 대기 -> Write All
-	class UserService extends Thread {
+	class UserService extends Thread { //한명 한명의 유저
 		private InputStream is;
 		private OutputStream os;
 		private DataInputStream dis;
@@ -239,17 +240,11 @@ public class AtariServer extends JFrame {
 		// UserService Thread가 담당하는 Client 에게 1:1 전송
 		public void WriteOne(String msg) {
 			try {
-				// dos.writeUTF(msg);
-				// byte[] bb;
-				// bb = MakePacket(msg);
-				// dos.write(bb, 0, bb.length);
 				InteractMsg obcm = new InteractMsg("SERVER", "200");
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
 				try {
-					// dos.close();
-					// dis.close();
 					ois.close();
 					oos.close();
 					client_socket.close();
@@ -331,49 +326,12 @@ public class AtariServer extends JFrame {
 						userName = cm.userName;
 						UserStatus = "O"; // Online 상태
 						Login();
-					} else if (cm.code.matches("200")) {
-						msg = String.format("[%s] %s", cm.userName, cm.code);
-						AppendText(msg); // server 화면에 출력
-						String[] args = msg.split(" "); // 단어들을 분리한다.
-						if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
-							UserStatus = "O";
-						} else if (args[1].matches("/exit")) {
-							Logout();
-							break;
-						} else if (args[1].matches("/list")) {
-							WriteOne("User list\n");
-							WriteOne("Name\tStatus\n");
-							WriteOne("-----------------------------\n");
-							for (int i = 0; i < user_vc.size(); i++) {
-								UserService user = (UserService) user_vc.elementAt(i);
-								WriteOne(user.userName + "\t" + user.UserStatus + "\n");
-							}
-							WriteOne("-----------------------------\n");
-						} else if (args[1].matches("/sleep")) {
-							UserStatus = "S";
-						} else if (args[1].matches("/wakeup")) {
-							UserStatus = "O";
-						} else if (args[1].matches("/to")) { // 귓속말
-							for (int i = 0; i < user_vc.size(); i++) {
-								UserService user = (UserService) user_vc.elementAt(i);
-								if (user.userName.matches(args[2]) && user.UserStatus.matches("O")) {
-									String msg2 = "";
-									for (int j = 3; j < args.length; j++) {// 실제 message 부분
-										msg2 += args[j];
-										if (j < args.length - 1)
-											msg2 += " ";
-									}
-									// /to 빼고.. [귓속말] [user1] Hello user2..
-									user.WritePrivate(args[0] + " " + msg2 + "\n");
-									// user.WriteOne("[귓속말] " + args[0] + " " + msg2 + "\n");
-									break;
-								}
-							}
-						} else { // 일반 채팅 메시지
-							UserStatus = "O";
-							// WriteAll(msg + "\n"); // Write All
-							WriteAllObject(cm);
-						}
+					} else if (cm.code.matches("200")) { //create room 요청
+						RoomService room = new RoomService(cm.roomName); //서버에서 게임방 하나 생성
+						RoomVec.add(room);
+						msg = String.format("[%s] %s 게임방 %s 생성", cm.userName, cm.code, cm.roomName);
+						AppendText(msg);
+						WriteAllObject(cm);
 					} else if (cm.code.matches("400")) { // logout message 처리
 						Logout();
 						break;
@@ -394,6 +352,38 @@ public class AtariServer extends JFrame {
 				} // 바깥 catch문끝
 			} // while
 		} // run
+	}
+	
+	public class RoomService { //게임방
+		private InputStream is;
+		private OutputStream os;
+		private DataInputStream dis;
+		private DataOutputStream dos;
+
+		private ObjectInputStream ois;
+		private ObjectOutputStream oos;
+
+		private Socket client_socket;
+		private Vector<RoomService> room_vc;
+		private String roomName;
+		//유저 정보
+		private final int maxUsers = 4; //최대 4명까지만
+		private int enteredUsers;
+		private Vector<UserService> curuser_vc; //현재 방에 입장한 유저 목록
+		
+		//방 상태
+		public String roomStatus; //OPEN과 CLOSE 두 가지 상태만.
+		
+		public RoomService(String roomName) {
+			//방 생성...
+			this.roomName = roomName;
+			RoomService newGameRoom = new RoomService(roomName);
+			AppendText("새로운 게임방 : " + roomName + " 생성되었음.");
+		}
+		
+		//인원 추가
+		
+		//게임방에
 	}
 
 }

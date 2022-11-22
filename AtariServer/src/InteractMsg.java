@@ -6,8 +6,10 @@ class InteractMsg implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public String userName; // 유저이름
-	public String code; // 프로토콜 코드 100: 로그인
+	public String code; // 프로토콜 코드 100: 로그인 200: 게임방 생성
 	// 필요에 따라 더 추가
+
+	public String roomName;
 
 	public InteractMsg(String userName, String code) {
 		this.userName = userName;

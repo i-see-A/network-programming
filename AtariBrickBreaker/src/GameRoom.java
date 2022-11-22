@@ -9,16 +9,13 @@ import javax.swing.SwingConstants;
 import javax.swing.JToggleButton;
 
 public class GameRoom extends JPanel {
-	private int roomIndex;
-	private String roomName;
-	//유저 정보
-	private int enteredUsers; //최대 4명까지만
+	
 	
 
 	/**
 	 * Create the panel.
 	 */
-	public GameRoom() { //게임 로비 틀
+	public GameRoom() { //게임방 틀
 		setBackground(new Color(0, 128, 255));
 		setLayout(null);
 		
