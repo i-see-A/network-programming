@@ -36,12 +36,11 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener{
 		setFocusTraversalKeysEnabled(false);
 		timer = new Timer(delay, this);
 		timer.start();
-		
-		
 	}
 	
 	public void paint(Graphics g) {
 		//background
+		
 		g.setColor(Color.black); //배경색깔
 		g.fillRect(1, 1, 692, 592); //크기 추후에 바꿔줘야함.
 		
