@@ -3,7 +3,6 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.FontFormatException;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +56,6 @@ public class AtariClientMain { // 게임타이틀화면
 
 			Path dohyeonFontPath = Paths.get(currentPath.toString().replace("AtariBrickBreaker", ""), "AtariBrickBreaker", "assets", "fonts",
 					"BMDOHYEON.ttf");
-			System.out.println(dohyeonFontPath);
 			Path cookieRunFontPath = Paths.get(currentPath.toString().replace("AtariBrickBreaker", ""), "AtariBrickBreaker", "assets", "fonts",
 					"CookieRun_Bold.ttf");
 
