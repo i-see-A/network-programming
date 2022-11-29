@@ -21,9 +21,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class AtariClientMain{ // 게임타이틀화면
-
 	private JFrame frame;
 	private JTextField txtUserName;
+	private GameTitle gameTitle = new GameTitle(); //게임 제목, 버튼들 들어있는 Jpanel
+	
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice gd = ge.getDefaultScreenDevice();
 
@@ -87,19 +88,17 @@ public class AtariClientMain{ // 게임타이틀화면
 		frame.setResizable(false);
 		gd.setFullScreenWindow(frame); //전체화면
 		frame.getContentPane().setLayout(new BorderLayout());
-		
-		gameTitle gt = new gameTitle(); //게임 제목, 버튼들 들어있는 Jpanel
-		frame.getContentPane().add(gt, BorderLayout.CENTER);
+		frame.getContentPane().add(gameTitle, BorderLayout.CENTER);
 	}
 	
-	class gameTitle extends JPanel{
+	class GameTitle extends JPanel{
 		Font BM_DOHYEON_BOLD = new Font("배달의민족 도현", Font.BOLD, 18);
 		Font COOKIE_RUN_BOLD = new Font("CookieRun_Bold", Font.BOLD, 18);
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = (int)dimension.getWidth();
 		int h = (int)dimension.getHeight();
 		
-		public gameTitle() {
+		public GameTitle() {
 			//JPanel 게임 제목과, 이름 입력, 버튼 넣을
 			setBackground(Color.white);
 			setLayout(null);
@@ -160,12 +159,34 @@ public class AtariClientMain{ // 게임타이틀화면
 			} else {
 				Main game = new Main(userName, ip_addr, port_no);
 				if (btn.getText().equals("Single")) {
-					game.runGame();
+					game.panel = new GamePanel();
+					frame.getContentPane().add(game.panel);
+					frame.setTitle("Atari Break-out");
+					frame.setResizable(false);
+					frame.setBackground(Color.black);
+					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					frame.pack();
+					frame.setVisible(true);
+					frame.setLocationRelativeTo(null);
+					
 				} else if (btn.getText().equals("Multi")) {
-					game.goToLobby();
+					frame.getContentPane().add(game.lobby);
 				}
-				frame.setVisible(false);
+				gameTitle.setVisible(false);
 			}
 		}
 	}
+
+	public JFrame getFrame() {
+		return frame;
+	}
+
+	public JTextField getTxtUserName() {
+		return txtUserName;
+	}
+
+	public GameTitle getGameTitle() {
+		return gameTitle;
+	}
+
 }

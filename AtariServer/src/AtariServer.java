@@ -39,7 +39,7 @@ public class AtariServer extends JFrame {
 	private ServerSocket socket; // 서버소켓
 	private Socket client_socket; // accept() 에서 생성된 client 소켓
 	private Vector<UserService> UserVec = new Vector<UserService>(); // 연결된 사용자를 저장할 벡터
-	private Vector<RoomService> RoomVec = new Vector<RoomService>(); // 생성된 방을 저장할 벡터
+	private Vector<RoomManager> RoomVec = new Vector<RoomManager>(); // 생성된 방을 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	/**
@@ -178,8 +178,6 @@ public class AtariServer extends JFrame {
 
 		public void Login() {
 			AppendText("새로운 참가자 " + userName + " 입장.");
-			WriteOne("Welcome to Java chat server\n");
-			WriteOne(userName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
 			String msg = "[" + userName + "]님이 입장 하였습니다.\n";
 			WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
 		}
@@ -302,42 +300,55 @@ public class AtariServer extends JFrame {
 		public void run() {
 			while (true) { // 사용자 접속을 계속해서 받기 위해 while문
 				try {
+					System.out.println("첫 try catch");
 					Object obcm = null;
 					String msg = null;
 					InteractMsg cm = null;
 					if (socket == null)
 						break;
 					try {
+						System.out.println("두번째 try catch");
 						obcm = ois.readObject();
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						return;
 					}
-					if (obcm == null)
+					if (obcm == null) {
 						break;
+					}
 					if (obcm instanceof InteractMsg) {
 						cm = (InteractMsg) obcm;
 						AppendObject(cm);
 					} else
 						continue;
-					if (cm.code.matches("100")) {
+					
+					switch(cm.code) {
+					case "100" : //Login(), 초기화면에서 본인 이름 입력했을 때
 						userName = cm.userName;
 						UserStatus = "O"; // Online 상태
 						Login();
-					} else if (cm.code.matches("200")) { // create room 요청
-						RoomService room = new RoomService(cm.roomName); // 서버에서 게임방 하나 생성
+						break;
+					case "200" : //클라이언트에서 create 버튼으로 서버에 방 생성 요청
+						RoomManager room = new RoomManager(cm.roomName); // 서버에서 게임방 하나 생성
 						RoomVec.add(room);
 						msg = String.format("[%s] %s 게임방 %s 생성", cm.userName, cm.code, cm.roomName);
 						AppendText(msg);
 						WriteAllObject(cm);
-					} else if (cm.code.matches("400")) { // logout message 처리
+						break;
+					case "201" : //클라이언트에서 lobby로 진입 시, 서버에 전체 방 정보 요청
+						msg = String.format("[%s](이)가 로비에 들어왔습니다.\n", cm.userName);
+						WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
+						break;
+					case "400" :
 						Logout();
 						break;
-					} else { // 300, 500, ... 기타 object는 모두 방송한다.
+					default:
 						WriteAllObject(cm);
 					}
+
 				} catch (IOException e) {
+					System.out.println("바로 여기로 오네");
 					AppendText("ois.readObject() error");
 					try {
 						ois.close();
@@ -353,7 +364,7 @@ public class AtariServer extends JFrame {
 		} // run
 	}
 
-	public class RoomService { // 게임방
+	public class RoomManager { // 방 생성 관리
 		private InputStream is;
 		private OutputStream os;
 		private DataInputStream dis;
@@ -363,7 +374,7 @@ public class AtariServer extends JFrame {
 		private ObjectOutputStream oos;
 
 		private Socket client_socket;
-		private Vector<RoomService> room_vc;
+		private Vector<RoomManager> room_vc;
 		private String roomName;
 		// 유저 정보
 		private final int maxUsers = 4; // 최대 4명까지만
@@ -373,10 +384,10 @@ public class AtariServer extends JFrame {
 		// 방 상태
 		public String roomStatus; // OPEN과 CLOSE 두 가지 상태만.
 
-		public RoomService(String roomName) {
+		public RoomManager(String roomName) {
 			// 방 생성...
 			this.roomName = roomName;
-			RoomService newGameRoom = new RoomService(roomName);
+			RoomManager newGameRoom = new RoomManager(roomName);
 			AppendText("새로운 게임방 : " + roomName + " 생성되었음.");
 		}
 
