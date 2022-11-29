@@ -6,7 +6,6 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
-import javax.swing.JToggleButton;
 
 public class GameRoom extends JPanel {
 	
