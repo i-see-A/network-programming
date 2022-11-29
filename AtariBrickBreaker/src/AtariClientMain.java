@@ -63,7 +63,6 @@ public class AtariClientMain{ // 게임타이틀화면
 
 			Path dohyeonFontPath = Paths.get(currentPath.toString().replace("AtariBrickBreaker", ""), "AtariBrickBreaker", "assets", "fonts",
 					"BMDOHYEON.ttf");
-			System.out.println(dohyeonFontPath);
 			Path cookieRunFontPath = Paths.get(currentPath.toString().replace("AtariBrickBreaker", ""), "AtariBrickBreaker", "assets", "fonts",
 					"CookieRun_Bold.ttf");
 
