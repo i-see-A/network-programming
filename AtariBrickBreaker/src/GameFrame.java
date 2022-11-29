@@ -11,7 +11,6 @@ public class GameFrame extends JFrame {
 		
 		panel = new GamePanel();
 		
-		//this.add(panel);  //finestra AWT
 		
 		this.getContentPane().add(panel); //finestra Swing
 		
