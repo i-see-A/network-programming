@@ -1,4 +1,4 @@
-//JavaObjServer.java ObjectStream 기반 채팅 Server
+
 
 import java.awt.EventQueue;
 
@@ -26,6 +26,7 @@ import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 
+
 public class AtariServer extends JFrame {
 
 	/**
@@ -39,7 +40,8 @@ public class AtariServer extends JFrame {
 	private ServerSocket socket; // 서버소켓
 	private Socket client_socket; // accept() 에서 생성된 client 소켓
 	private Vector<UserService> UserVec = new Vector<UserService>(); // 연결된 사용자를 저장할 벡터
-	private Vector<RoomManager> RoomVec = new Vector<RoomManager>(); // 생성된 방을 저장할 벡터
+	private Vector<AtariServer.RoomManager.GameRoom> RoomVec = new Vector<AtariServer.RoomManager.GameRoom>(); // 생성된 방을 저장할 벡터
+	private RoomManager roomManager = new RoomManager(); //방 관리자
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	/**
@@ -132,13 +134,11 @@ public class AtariServer extends JFrame {
 	}
 
 	public void AppendText(String str) {
-		// textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
 		textArea.append(str + "\n");
 		textArea.setCaretPosition(textArea.getText().length());
 	}
 
 	public void AppendObject(InteractMsg msg) {
-		// textArea.append("사용자로부터 들어온 object : " + str+"\n");
 		textArea.append("code = " + msg.code + "\n");
 		textArea.append("username = " + msg.userName + "\n");
 		textArea.setCaretPosition(textArea.getText().length());
@@ -158,7 +158,10 @@ public class AtariServer extends JFrame {
 		private Socket client_socket;
 		private Vector<UserService> user_vc;
 		public String userName = ""; // 타이틀 화면에서 입력한 이름
-		public String UserStatus;
+		
+		private Vector<AtariServer.RoomManager.GameRoom> room_vc;
+		public String UserStatus; //userPosition으로 바꾸자, room_vc의 room의 userlist에서 이 유저의 인덱스가 0면 방장으로
+		public int roomNumber; //몇 번째 방에 들어가있는지
 
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -188,6 +191,13 @@ public class AtariServer extends JFrame {
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송
 			AppendText("사용자 " + "[" + userName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
 		}
+		
+		//유저는 방에 들어가
+		public void enterRoom() {
+			
+		}
+		
+		//유저는 게임을 시작할수있어
 
 		// 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
 		public void WriteAll(String str) {
@@ -237,7 +247,7 @@ public class AtariServer extends JFrame {
 		// UserService Thread가 담당하는 Client 에게 1:1 전송
 		public void WriteOne(String msg) {
 			try {
-				InteractMsg obcm = new InteractMsg("SERVER", "200");
+				InteractMsg obcm = new InteractMsg("SERVER", "400");
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
@@ -259,7 +269,7 @@ public class AtariServer extends JFrame {
 		// 귓속말 전송
 		public void WritePrivate(String msg) {
 			try {
-				InteractMsg obcm = new InteractMsg("귓속말", "200");
+				InteractMsg obcm = new InteractMsg("귓속말", "401");
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
@@ -300,14 +310,12 @@ public class AtariServer extends JFrame {
 		public void run() {
 			while (true) { // 사용자 접속을 계속해서 받기 위해 while문
 				try {
-					System.out.println("첫 try catch");
 					Object obcm = null;
 					String msg = null;
 					InteractMsg cm = null;
 					if (socket == null)
 						break;
 					try {
-						System.out.println("두번째 try catch");
 						obcm = ois.readObject();
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
@@ -322,23 +330,74 @@ public class AtariServer extends JFrame {
 						AppendObject(cm);
 					} else
 						continue;
-					
+
 					switch(cm.code) {
 					case "100" : //Login(), 초기화면에서 본인 이름 입력했을 때
 						userName = cm.userName;
 						UserStatus = "O"; // Online 상태
 						Login();
-						break;
+						break; 
 					case "200" : //클라이언트에서 create 버튼으로 서버에 방 생성 요청
-						RoomManager room = new RoomManager(cm.roomName); // 서버에서 게임방 하나 생성
-						RoomVec.add(room);
-						msg = String.format("[%s] %s 게임방 %s 생성", cm.userName, cm.code, cm.roomName);
+						 // 서버에서 게임방 하나 생성
+						roomManager.createGameRoom(cm);
+						msg = String.format("[CODE %s] %s(이)가 게임방 %s 생성.", cm.code, cm.userName, cm.roomName);
 						AppendText(msg);
-						WriteAllObject(cm);
+						for(int i = 0;i<4;i++) {
+							//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
+							int newEnteredUser = 0; //방에 들어온 인원
+							String newRoomStatus = ""; //방 상태
+							String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
+							String newRoomName = ""; //방이름
+							if(roomManager.room_vc.elementAt(i) == null) {
+								break;
+							}
+							else {
+								newRoomName = roomManager.room_vc.elementAt(i).roomName;
+								newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
+								newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
+								for(int j=0;j<4;j++) {
+									if( roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName == null )
+										break;
+									newUserInfo = roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName;
+								}
+								
+								cm.roomInfo =  newRoomName + newRoomStatus + Integer.toString(newEnteredUser) + newUserInfo;
+							}
+							System.out.println("서버" + cm.roomInfo);
+							WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
+						}
+							msg = String.format("[CODE %s] %s에게 전체 방 정보를 보냈습니다.\n", cm.code, cm.userName);
+							AppendText(msg);
 						break;
 					case "201" : //클라이언트에서 lobby로 진입 시, 서버에 전체 방 정보 요청
-						msg = String.format("[%s](이)가 로비에 들어왔습니다.\n", cm.userName);
-						WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
+						msg = String.format("[CODE %s] %s(이)가 로비에 입장했습니다.\n", cm.code, cm.userName);
+						AppendText(msg);
+						for(int i = 0;i<4;i++) {
+							//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
+							int newEnteredUser = 0; //방에 들어온 인원
+							String newRoomStatus = ""; //방 상태
+							String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
+							String newRoomName = ""; //방이름
+							if(roomManager.room_vc.elementAt(i) == null) {
+								break;
+							}
+							else {
+								newRoomName = roomManager.room_vc.elementAt(i).roomName;
+								newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
+								newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
+								for(int j=0;j<4;j++) {
+									if( roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName == null )
+										break;
+									newUserInfo = roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName;
+								}
+								
+								cm.roomInfo =  newRoomName + newRoomStatus + Integer.toString(newEnteredUser) + newUserInfo;
+							}
+							System.out.println("서버" + cm.roomInfo);
+							WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
+						}
+							msg = String.format("[CODE %s] %s에게 전체 방 정보를 보냈습니다.\n", cm.code, cm.userName);
+							AppendText(msg);
 						break;
 					case "400" :
 						Logout();
@@ -348,7 +407,6 @@ public class AtariServer extends JFrame {
 					}
 
 				} catch (IOException e) {
-					System.out.println("바로 여기로 오네");
 					AppendText("ois.readObject() error");
 					try {
 						ois.close();
@@ -364,36 +422,50 @@ public class AtariServer extends JFrame {
 		} // run
 	}
 
-	public class RoomManager { // 방 생성 관리
-		private InputStream is;
-		private OutputStream os;
-		private DataInputStream dis;
-		private DataOutputStream dos;
+	public class RoomManager { // 방 관리
+		private Vector<GameRoom> room_vc;
+		private GameRoom gameRoom;
+		
+		public RoomManager() {
+			GameRoom initialGameRoom = new GameRoom("기본방");
+			room_vc = new Vector<GameRoom>();
+			room_vc.add(gameRoom);
+		}
+		
+		//방 관리자는 게임방을 생성한다.
+		public void createGameRoom(InteractMsg cm) {
+			GameRoom gameRoom = new GameRoom(cm);
+			room_vc.add(gameRoom);
+		}
+		
+		//방 관리자가 관리하는 게임방 하나하나의 클래스
+		public class GameRoom{
+			//방
+			private String roomName; //방 이름
+			public String roomStatus; // 방 상태 "OPENED" 입장가능 , "STARTED" 게임 시작함 , "CLOSED" 인원이 다 참
+			
+			//입장한 유저관련
+			private final int maxUser = 4; // 최대 4명까지만
+			private int enteredUser; //현재 입장한 유저 명수
+			private Vector<UserService> currentUser_vc; // 현재 방에 입장한 유저 목록
+			
+			public GameRoom(String roomName) {
+				this.roomName = roomName;
+				this.roomStatus = "OPENED";
+				this.enteredUser = 0;
+				this.currentUser_vc = null;
+			}
 
-		private ObjectInputStream ois;
-		private ObjectOutputStream oos;
+			public GameRoom(InteractMsg cm) { //게임방 틀. 파라미터에는 룸매니저로부터 받은 정보가...
+				this.roomName = cm.roomName;
+				this.roomStatus = "OPENED";
+				this.enteredUser = 0;
+				this.currentUser_vc = null;
+			}
 
-		private Socket client_socket;
-		private Vector<RoomManager> room_vc;
-		private String roomName;
-		// 유저 정보
-		private final int maxUsers = 4; // 최대 4명까지만
-		private int enteredUsers;
-		private Vector<UserService> curuser_vc; // 현재 방에 입장한 유저 목록
-
-		// 방 상태
-		public String roomStatus; // OPEN과 CLOSE 두 가지 상태만.
-
-		public RoomManager(String roomName) {
-			// 방 생성...
-			this.roomName = roomName;
-			RoomManager newGameRoom = new RoomManager(roomName);
-			AppendText("새로운 게임방 : " + roomName + " 생성되었음.");
 		}
 
-		// 인원 추가
 
-		// 게임방에
 	}
 
 }

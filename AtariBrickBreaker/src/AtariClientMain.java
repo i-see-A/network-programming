@@ -1,3 +1,4 @@
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,9 +22,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class AtariClientMain { // 게임타이틀화면
+	private static final long serialVersionUID = 1L;
 	private JFrame frame;
 	private JTextField txtUserName;
 	private GameTitle gameTitle = new GameTitle(); //게임 제목, 버튼들 들어있는 Jpanel
+	final String IP_ADDRESS = "127.0.0.1";
+	final String PORT_NUMBER = "30000";
 	
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -127,7 +131,7 @@ public class AtariClientMain { // 게임타이틀화면
 			txtUserName.setColumns(10);
 			txtUserName.setFont(BM_DOHYEON_BOLD);
 			add(txtUserName);
-
+			
 			// single play
 			JButton btnSingle = new JButton("Single");
 			btnSingle.setBounds((int) (0.5 * w - 200), (int) (0.5 * h + 150), 150, 40);
@@ -148,18 +152,17 @@ public class AtariClientMain { // 게임타이틀화면
 	}
 
 	class Myaction implements ActionListener {
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String userName = txtUserName.getText().trim();
-			String ip_addr = "127.0.0.1"; // 은서:우선 로컬에서만 돌아가게 했음.
-			String port_no = "30000"; // 은서: 나중에 필요하면 ip랑 port번호 쓰는 거 놔야하나...?
 			JButton btn = (JButton) e.getSource();
 
 			if (userName.length() == 0) { // userName 입력 안되었을 시
 				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
 			} else {
-				Main game = new Main(userName, ip_addr, port_no);
+				Main game = new Main(userName, IP_ADDRESS, PORT_NUMBER); //Main 객체가 생성이 되면서, 로그인 정보 서버에 보냄.
+				
 				if (btn.getText().equals("Single")) {
 					game.panel = new GamePanel();
 					frame.getContentPane().add(game.panel);
