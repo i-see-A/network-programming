@@ -25,10 +25,10 @@ public class AtariClientMain { // 게임타이틀화면
 	private static final long serialVersionUID = 1L;
 	private JFrame frame;
 	private JTextField txtUserName;
-	private GameTitle gameTitle = new GameTitle(); //게임 제목, 버튼들 들어있는 Jpanel
+	private GameTitle gameTitle = new GameTitle(); // 게임 제목, 버튼들 들어있는 Jpanel
 	final String IP_ADDRESS = "127.0.0.1";
 	final String PORT_NUMBER = "30000";
-	
+
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice gd = ge.getDefaultScreenDevice();
 
@@ -90,11 +90,10 @@ public class AtariClientMain { // 게임타이틀화면
 		frame.setBackground(new Color(255, 255, 255));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(gameTitle, BorderLayout.CENTER);
 	}
-	
 
 	class GameTitle extends JPanel {
 		Font BM_DOHYEON_BOLD = new Font("배달의민족 도현", Font.BOLD, 18);
@@ -130,7 +129,7 @@ public class AtariClientMain { // 게임타이틀화면
 			txtUserName.setColumns(10);
 			txtUserName.setFont(BM_DOHYEON_BOLD);
 			add(txtUserName);
-			
+
 			// single play
 			JButton btnSingle = new JButton("Single");
 			btnSingle.setBounds((int) (0.5 * w - 200), (int) (0.5 * h + 150), 150, 40);
@@ -151,7 +150,7 @@ public class AtariClientMain { // 게임타이틀화면
 	}
 
 	class Myaction implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String userName = txtUserName.getText().trim();
@@ -160,8 +159,8 @@ public class AtariClientMain { // 게임타이틀화면
 			if (userName.length() == 0) { // userName 입력 안되었을 시
 				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
 			} else {
-				Main game = new Main(userName, IP_ADDRESS, PORT_NUMBER); //Main 객체가 생성이 되면서, 로그인 정보 서버에 보냄.
-				
+				Main game = new Main(userName, IP_ADDRESS, PORT_NUMBER); // Main 객체가 생성이 되면서, 로그인 정보 서버에 보냄.
+
 				if (btn.getText().equals("Single")) {
 					game.panel = new GamePanel();
 					frame.getContentPane().add(game.panel);
@@ -172,7 +171,7 @@ public class AtariClientMain { // 게임타이틀화면
 					frame.pack();
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);
-					
+
 				} else if (btn.getText().equals("Multi")) {
 					frame.getContentPane().add(game.lobby);
 				}
