@@ -160,7 +160,7 @@ public class AtariServer extends JFrame {
 		public String userName = ""; // 타이틀 화면에서 입력한 이름
 		
 		private Vector<AtariServer.RoomManager.GameRoom> room_vc;
-		public String UserStatus; //userPosition으로 바꾸자, room_vc의 room의 userlist에서 이 유저의 인덱스가 0면 방장으로
+		public String UserStatus;
 		public int roomNumber; //몇 번째 방에 들어가있는지
 
 		public UserService(Socket client_socket) {
@@ -342,63 +342,128 @@ public class AtariServer extends JFrame {
 						roomManager.createGameRoom(cm);
 						msg = String.format("[CODE %s] %s(이)가 게임방 %s 생성.", cm.code, cm.userName, cm.roomName);
 						AppendText(msg);
-						for(int i = 0;i<4;i++) {
-							//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
-							int newEnteredUser = 0; //방에 들어온 인원
-							String newRoomStatus = ""; //방 상태
-							String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
-							String newRoomName = ""; //방이름
-							if(roomManager.room_vc.elementAt(i) == null) {
-								break;
-							}
-							else {
-								newRoomName = roomManager.room_vc.elementAt(i).roomName;
-								newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
-								newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
-								for(int j=0;j<4;j++) {
-									if( roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName == null )
-										break;
-									newUserInfo = roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName;
+						if (roomManager.room_vc.size() <= 4) {
+							for(int i = 0;i<roomManager.room_vc.size();i++) {
+								//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
+								int newEnteredUser = 0; //방에 들어온 인원
+								String newRoomStatus = ""; //방 상태
+								String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
+								String newRoomName = ""; //방이름
+								int newRoomNumber; //방 번호
+								if(roomManager.room_vc.elementAt(i) == null) {
+									System.out.println("룸벡터 null");
+									break;
 								}
-								
-								cm.roomInfo =  newRoomName + newRoomStatus + Integer.toString(newEnteredUser) + newUserInfo;
+								else {
+									newRoomNumber = i;
+									newRoomName = roomManager.room_vc.elementAt(i).roomName;
+									newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
+									newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
+									for(int j=0;j<4;j++) {
+										if( roomManager.room_vc.elementAt(i).currentUserList == null )
+											break;
+										newUserInfo = roomManager.room_vc.elementAt(i).currentUserList;
+									}
+									
+									cm.roomInfo =  newRoomNumber+","+newRoomName+"," + newRoomStatus+"," + Integer.toString(newEnteredUser)+"," + newUserInfo;
+								}
+								WriteAllObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
 							}
-							System.out.println("서버" + cm.roomInfo);
-							WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
-						}
 							msg = String.format("[CODE %s] %s에게 전체 방 정보를 보냈습니다.\n", cm.code, cm.userName);
 							AppendText(msg);
+						} else {
+							msg = String.format("[CODE %s] 방은 최대 4개까지만 생성할 수 있습니다.\n", cm.code);
+							AppendText(msg);
+						}
+							
 						break;
 					case "201" : //클라이언트에서 lobby로 진입 시, 서버에 전체 방 정보 요청
 						msg = String.format("[CODE %s] %s(이)가 로비에 입장했습니다.\n", cm.code, cm.userName);
 						AppendText(msg);
-						for(int i = 0;i<4;i++) {
+							for(int i = 0;i<roomManager.room_vc.size();i++) {
+								//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
+								int newEnteredUser = 0; //방에 들어온 인원
+								String newRoomStatus = ""; //방 상태
+								String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
+								String newRoomName = ""; //방이름
+								int newRoomNumber; //방 번호
+								if(roomManager.room_vc.elementAt(i) == null) {
+									System.out.println("룸벡터 null");
+									break;
+								}
+								else {
+									newRoomNumber = i;
+									newRoomName = roomManager.room_vc.elementAt(i).roomName;
+									newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
+									newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
+									for(int j=0;j<4;j++) {
+										if( roomManager.room_vc.elementAt(i).currentUserList == null )
+											continue;
+										newUserInfo = roomManager.room_vc.elementAt(i).currentUserList;
+									}
+									
+									cm.roomInfo =  Integer.toString(newRoomNumber) + "," + newRoomName+ "," + newRoomStatus + "," + Integer.toString(newEnteredUser) + "," + newUserInfo;
+								}
+								System.out.println("서버" + cm.roomInfo);
+								WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다
+							}
+							System.out.println("Server 201: "+cm.roomInfo + cm.roomName);
+								msg = String.format("[CODE %s] %s에게 전체 방 정보를 보냈습니다.\n", cm.code, cm.userName);
+								AppendText(msg);
+						break;
+					case "300" : //클라이언트가 게임방에 입장해서 유저정보,방 정보 업데이트 후 다시 클라이언트에게 보낸다.
+						
+						String[] roomInfoList = cm.roomInfo.split(",",5); //방번호 방제 방상태 인원수 입장인원1 2 3 4
+						
+						int newRoomNumber = Integer.parseInt(roomInfoList[0]); //방번호
+						String newRoomName = roomInfoList[1];//방제
+						String newRoomStatus = roomInfoList[2];//방상태
+						int newEnteredUser = Integer.parseInt(roomInfoList[3]);//인원수
+						String newEnteredUserName = roomInfoList[4];//게임방으로 들어온 유저 이름
+						
+						System.out.println("SERVER 300 입니다"+newRoomNumber+ newRoomName+newRoomStatus+newEnteredUser+newEnteredUserName);
+						
+						for(int i = 0;i<roomManager.room_vc.size();i++) {
 							//oos 통신 시 Vector, List,Array로 통신하면 안된다고 함. String으로 받고 split으로 나눠야함.
-							int newEnteredUser = 0; //방에 들어온 인원
-							String newRoomStatus = ""; //방 상태
-							String newUserInfo = ""; //방에 있는 유저들 이름 인원1 인원2 인원3 인원4
-							String newRoomName = ""; //방이름
 							if(roomManager.room_vc.elementAt(i) == null) {
+								System.out.println("룸벡터 null");
 								break;
 							}
 							else {
-								newRoomName = roomManager.room_vc.elementAt(i).roomName;
-								newRoomStatus = roomManager.room_vc.elementAt(i).roomStatus;
-								newEnteredUser = (int)roomManager.room_vc.elementAt(i).enteredUser;
-								for(int j=0;j<4;j++) {
-									if( roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName == null )
-										break;
-									newUserInfo = roomManager.room_vc.elementAt(i).currentUser_vc.elementAt(j).userName;
+								if( newRoomNumber == i ) { //요청 들어온 방 번호로 룸벡터에서 방 찾고
+									newEnteredUser = newEnteredUser + 1; //유저 수 업데이트
+									roomManager.room_vc.elementAt(i).enteredUser = newEnteredUser;
+									if(newEnteredUser == 4) {
+										newRoomStatus = "CLOSED"; //방상태 업데이트
+										roomManager.room_vc.elementAt(i).roomStatus = newRoomStatus;
+									}
+									for(int j=0;j<user_vc.size();j++) { //유저 벡터 업데이트
+										if( user_vc.elementAt(j).userName == newEnteredUserName) {
+											roomManager.room_vc.elementAt(i).currentUserList = roomManager.room_vc.elementAt(i).currentUserList + newEnteredUserName+"/";
+											user_vc.elementAt(j).roomNumber = newRoomNumber; //유저벡터에 입장한 방번호 입력
+											String[] userList = roomManager.room_vc.elementAt(i).currentUserList.split("/");
+											for(int k=0;k<userList.length;k++) {
+												System.out.println("server 300 게임방 유저이름: "+userList[k]);
+												if(userList[0] == user_vc.elementAt(j).userName) //요청 들어온 유저의 이름이 게임방 유저리스트 맨 처음이면
+													user_vc.elementAt(j).UserStatus = "M"; //Master 방장
+												else
+													user_vc.elementAt(j).UserStatus = "R"; //Regular 일반
+											}
+											
+										}
+									}
+									
+
+									
+									}
 								}
-								
-								cm.roomInfo =  newRoomName + newRoomStatus + Integer.toString(newEnteredUser) + newUserInfo;
-							}
-							System.out.println("서버" + cm.roomInfo);
-							WriteOneObject(cm); //여기서 보내는 cm은 방 정보가 되어야한다...
+
 						}
-							msg = String.format("[CODE %s] %s에게 전체 방 정보를 보냈습니다.\n", cm.code, cm.userName);
-							AppendText(msg);
-						break;
+						
+						WriteAllObject(cm); //업데이트된 방 정보를 모두에게 보낸다.
+						msg = String.format("[CODE %s] %s(이)가 게임방 %s에 입장했습니다. 현재 인원은 %s명.\n", cm.code, cm.userName, newRoomName, Integer.toString(newEnteredUser));
+						AppendText(msg);
+						
 					case "400" :
 						Logout();
 						break;
@@ -421,21 +486,31 @@ public class AtariServer extends JFrame {
 			} // while
 		} // run
 	}
+	
+	
 
 	public class RoomManager { // 방 관리
 		private Vector<GameRoom> room_vc;
 		private GameRoom gameRoom;
 		
 		public RoomManager() {
-			GameRoom initialGameRoom = new GameRoom("기본방");
 			room_vc = new Vector<GameRoom>();
-			room_vc.add(gameRoom);
 		}
 		
 		//방 관리자는 게임방을 생성한다.
 		public void createGameRoom(InteractMsg cm) {
-			GameRoom gameRoom = new GameRoom(cm);
+			gameRoom = new GameRoom(cm);
 			room_vc.add(gameRoom);
+		}
+		
+		//게임방 삭제
+		public void removeGameGroom(InteractMsg cm) {
+			for(int i=0;i<room_vc.size();i++) {
+				if (cm.roomName == room_vc.elementAt(i).roomName ) {
+					room_vc.remove(i);
+				}
+			}
+			
 		}
 		
 		//방 관리자가 관리하는 게임방 하나하나의 클래스
@@ -447,24 +522,17 @@ public class AtariServer extends JFrame {
 			//입장한 유저관련
 			private final int maxUser = 4; // 최대 4명까지만
 			private int enteredUser; //현재 입장한 유저 명수
-			private Vector<UserService> currentUser_vc; // 현재 방에 입장한 유저 목록
-			
-			public GameRoom(String roomName) {
-				this.roomName = roomName;
-				this.roomStatus = "OPENED";
-				this.enteredUser = 0;
-				this.currentUser_vc = null;
-			}
+			private String currentUserList; // 현재 방에 입장한 유저 목록
 
-			public GameRoom(InteractMsg cm) { //게임방 틀. 파라미터에는 룸매니저로부터 받은 정보가...
+			public GameRoom(InteractMsg cm) {
 				this.roomName = cm.roomName;
 				this.roomStatus = "OPENED";
 				this.enteredUser = 0;
-				this.currentUser_vc = null;
+				this.currentUserList = "";
 			}
 
 		}
-
+		
 
 	}
 

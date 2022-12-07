@@ -91,7 +91,6 @@ public class AtariClientMain { // 게임타이틀화면
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
 		frame.setResizable(false);
-		// gd.setFullScreenWindow(frame); // 전체화면
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(gameTitle, BorderLayout.CENTER);
 	}
