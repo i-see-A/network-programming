@@ -1,3 +1,5 @@
+package single;
+
 
 import java.io.*;
 import java.util.*;
@@ -52,7 +54,7 @@ public class GamePanel extends JPanel implements Runnable {
 	Color ballColor1, ballColor2, paddleColor1, paddleColor2;
 	Random random;
 
-	GamePanel() {
+	public GamePanel() {
 		random = new Random();
 
 		brick = new Brick[rows][columns];

@@ -1,4 +1,5 @@
 
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,6 +21,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import single.GamePanel;
 
 public class AtariClientMain { // 게임타이틀화면
 	private static final long serialVersionUID = 1L;
@@ -163,8 +166,8 @@ public class AtariClientMain { // 게임타이틀화면
 			} else {
 				game = new Main(userName, IP_ADDRESS, PORT_NUMBER);
 				if (btn.getText().equals("Single")) {
-					game.panel = new GamePanel();
-					frame.getContentPane().add(game.panel);
+					JPanel panel = new GamePanel(); //single패키지의 GamePanel
+					frame.getContentPane().add(panel);
 					frame.setTitle("Atari Break-out");
 					frame.setResizable(false);
 					frame.setBackground(Color.black);
