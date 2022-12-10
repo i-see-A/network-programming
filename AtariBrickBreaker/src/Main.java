@@ -141,9 +141,8 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 	 */
 
 	public class Lobby extends JPanel { // 로비
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-		int w = (int) dimension.getWidth();
-		int h = (int) dimension.getHeight();
+		int w = acm.VIEW_WIDTH;
+		int h = acm.VIEW_HEIGHT;
 
 		JButton btnCreateRoom;
 		JButton btnBack;
@@ -162,14 +161,21 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 			JLabel lblLobby = new JLabel("Lobby");
 			lblLobby.setForeground(new Color(255, 255, 255));
 			lblLobby.setFont(new Font("배달의민족 도현", Font.PLAIN, 52));
-			lblLobby.setBounds((int) (0.125 * w), (int) (0.125 * h), 300, 60);
+			lblLobby.setBounds((int) (0.13 * w), (int) (0.125 * h), 300, 60);
 			add(lblLobby);
+			
+			
+			JLabel lblUserName = new JLabel("I'm " + userName);
+			lblUserName.setForeground(new Color(255, 255, 255));
+			lblUserName.setFont(new Font("배달의민족 도현", Font.PLAIN, 36));
+			lblUserName.setBounds((int) (0.13 * w), (int) (0.4 * h), 300, 60);
+			add(lblUserName);
 
 			btnCreateRoom = new JButton("Create");
 			btnCreateRoom.setBackground(new Color(255, 255, 128));
 			btnCreateRoom.setForeground(new Color(0, 0, 0));
-			btnCreateRoom.setFont(new Font("배달의민족 도현", Font.PLAIN, 36));
-			btnCreateRoom.setBounds((int) (0.125 * w), (int) (0.75 * h), 200, 50);
+			btnCreateRoom.setFont(new Font("배달의민족 도현", Font.PLAIN, 28));
+			btnCreateRoom.setBounds((int) (0.13 * w), (int) (0.75 * h), 150, 50);
 			btnCreateRoom.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					String newRoomName;
@@ -223,29 +229,29 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 					this.setEnabled(false);
 				}
 
-				this.setBounds((int) (0.125 * w + 250), (int) (0.25 * h) + roomNumber * 100, 770, 70);
+				this.setBounds((int) (0.125 * w + 250), (int) (0.25 * h) + roomNumber * 70, 350, 55);
 				lobby.add(this);
 				this.setBackground(Color.white);
 				this.setLayout(null);
 
 				JLabel lblRoomName = new JLabel(roomName);
-				lblRoomName.setFont(new Font("배달의민족 도현", Font.PLAIN, 32));
-				lblRoomName.setBounds(35, 20, 330, 40);
+				lblRoomName.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
+				lblRoomName.setBounds(15, 7, 330, 40);
 				this.add(lblRoomName);
 
 				JLabel lblRoomStatus = new JLabel(roomStatus);
-				lblRoomStatus.setFont(new Font("배달의민족 도현", Font.PLAIN, 18));
-				lblRoomStatus.setBounds(550, 20, 100, 40);
+				lblRoomStatus.setFont(new Font("배달의민족 도현", Font.PLAIN, 16));
+				lblRoomStatus.setBounds(260, 0, 100, 40);
 				this.add(lblRoomStatus);
 
 				JLabel lblEnteredUsers = new JLabel(Integer.toString(people)); // 인원수도 서버에서 넘겨받은 정보로 바꾸기
-				lblEnteredUsers.setFont(new Font("배달의민족 도현", Font.PLAIN, 18));
-				lblEnteredUsers.setBounds(660, 20, 15, 40);
+				lblEnteredUsers.setFont(new Font("배달의민족 도현", Font.PLAIN, 16));
+				lblEnteredUsers.setBounds(260, 20, 15, 40);
 				this.add(lblEnteredUsers);
 
-				JLabel lblUnit = new JLabel("/ 4 명");
+				JLabel lblUnit = new JLabel("/ 2 명");
 				lblUnit.setFont(new Font("배달의민족 도현", Font.PLAIN, 18));
-				lblUnit.setBounds(680, 20, 60, 40);
+				lblUnit.setBounds(280, 20, 60, 40);
 				this.add(lblUnit);
 
 				this.addActionListener(new ActionListener() {
@@ -264,7 +270,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 
 	}
 
-	public class GameRoomUI extends JFrame {
+	public class GameRoomUI extends JPanel {
 
 		String gameRoomName; // 방 이름
 		String[] userNameList = new String[] { "NO USER", "NO USER", "NO USER", "NO USER" };
@@ -277,7 +283,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		 * Create the panel.
 		 */
 		public GameRoomUI(int width, int height, int roomNum, String roomName, String[] userList, String userName) { // 게임방
-																														// 틀
+			int w = height; int h = height;																										// 틀
 			this.gameRoomName = roomName;
 			this.myName = userName;
 			this.roomNum = roomNum;
@@ -290,35 +296,18 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 			}
 
 			setSize(width, height);
-			getContentPane().setBackground(new Color(0, 128, 255));
+			setBackground(new Color(0, 128, 255));
 			setLayout(null);
 
 			JLabel lblRoomName = new JLabel(gameRoomName);
 			lblRoomName.setForeground(Color.WHITE);
 			lblRoomName.setFont(new Font("배달의민족 도현", Font.PLAIN, 30));
-			lblRoomName.setBounds(39, 26, 347, 60);
+			lblRoomName.setBounds((int) (0.13 * w), (int) (0.125 * h), 300, 60);
 			add(lblRoomName);
-
-			JPanel slot_1 = new JPanel();
-			slot_1.setBackground(new Color(213, 234, 255));
-			slot_1.setBounds(40, 110, 900, 850);
-			add(slot_1);
-			slot_1.setLayout(null);
-
-			JLabel lblUserPosition = new JLabel("Master");
-			lblUserPosition.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
-			lblUserPosition.setBounds(12, 20, 200, 20);
-			slot_1.add(lblUserPosition);
-
-			JLabel lblUseName = new JLabel(userNameList[0]);
-			lblUseName.setHorizontalAlignment(SwingConstants.CENTER);
-			lblUseName.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
-			lblUseName.setBounds(230, 20, 200, 20);
-			slot_1.add(lblUseName);
-
+			
 			JButton btnStartButton = new JButton("START");
-			btnStartButton.setBounds(450, 20, 200, 29);
-			slot_1.add(btnStartButton);
+			btnStartButton.setBounds((int) (0.13 * w), (int) (0.75 * h), 150, 50);
+			add(btnStartButton);
 			btnStartButton.setForeground(new Color(0, 0, 0));
 			btnStartButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -332,24 +321,41 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 			btnStartButton.setBackground(new Color(255, 255, 128));
 			btnStartButton.setFont(new Font("배달의민족 도현", Font.PLAIN, 16));
 
-			if (!myName.equals(userNameList[0])) // 내가 방장이 아니면 Start버튼 비활성화
-				btnStartButton.setEnabled(false);
+			if (!myName.equals(userNameList[0])) // 내가 방장이 아니면 Start버튼 보이지 않음
+				btnStartButton.setVisible(false);
+
+			JPanel slot_1 = new JPanel();
+			slot_1.setBackground(new Color(213, 234, 255)); 
+			slot_1.setBounds((int) (0.13 * w), (int) (0.25 * h), 250, 200);
+			add(slot_1);
+			slot_1.setLayout(null);
+
+			JLabel lblUserPosition = new JLabel("Master");
+			lblUserPosition.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
+			lblUserPosition.setBounds(20, 20, 100, 20);
+			slot_1.add(lblUserPosition);
+
+			JLabel lblUseName = new JLabel(userNameList[0]);
+			lblUseName.setHorizontalAlignment(SwingConstants.CENTER);
+			lblUseName.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
+			lblUseName.setBounds(20, 100, 200, 30);
+			slot_1.add(lblUseName);
 
 			JPanel slot_2 = new JPanel();
 			slot_2.setLayout(null);
 			slot_2.setBackground(new Color(213, 234, 255));
-			slot_2.setBounds(1000, 110, 900, 850);
+			slot_2.setBounds((int) (0.13 * w + 300), (int) (0.25 * h), 250, 200);
 			add(slot_2);
 
 			JLabel lblUserPosition_1 = new JLabel("Player");
-			lblUserPosition_1.setFont(new Font("배달의민족 도현", Font.PLAIN, 16));
-			lblUserPosition_1.setBounds(12, 20, 200, 20);
+			lblUserPosition_1.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
+			lblUserPosition_1.setBounds(20, 20, 100, 20);
 			slot_2.add(lblUserPosition_1);
 
 			JLabel lblUseName_1 = new JLabel(userNameList[1]);
 			lblUseName_1.setHorizontalAlignment(SwingConstants.CENTER);
 			lblUseName_1.setFont(new Font("배달의민족 도현", Font.PLAIN, 24));
-			lblUseName_1.setBounds(230, 20, 200, 20);
+			lblUseName_1.setBounds(20, 100, 200, 30);
 			slot_2.add(lblUseName_1);
 
 		}
@@ -363,22 +369,21 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		String[] userList = receivedEnteredUserList.split("/");
 
 		// 게임방으로 화면 전환
+//		acm.game.remove(lobby);
 		gameroomUI = new GameRoomUI(width, height, cm.roomNum, receivedRoomName, userList, cm.userName);
-		acm.getFrame().getContentPane().remove(lobby);
-		acm.getFrame().setVisible(false);
-		gameroomUI.setVisible(true);
-
-		// acm.getFrame().getContentPane().setVisible(false);
+		JFrame frame = new JFrame();
+		frame.setSize(width,height);
+		frame.getContentPane().add(gameroomUI);
+		frame.setVisible(true);		
 	}
 
 	public void drawGame(InteractMsg cm) {
 		panel = new GamePanel();
-		acm.getFrame().getContentPane().setVisible(false);
+//		acm.getFrame().getContentPane().setVisible(false);
 		gameroomUI.setVisible(false);
 		jframe = new JFrame();
 		jframe.getContentPane().add(panel);
 		jframe.pack();
-		jframe.setLocationRelativeTo(null);
 		jframe.setVisible(true);
 	}
 
