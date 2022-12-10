@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable {
 	static final Dimension SCREEN_SIZE = new Dimension(GAME_WIDTH, GAME_HEIGHT);
 	static final int BALL_DIAMETER = 15;
 
-	int lives = 10;
+	int lives = 15;
 	int score = 0;
 	int hits = 0;
 	int choice = 0;
@@ -28,7 +28,6 @@ public class GamePanel extends JPanel implements Runnable {
 	String welcomeMessage = "PRESS SPACE";
 
 	boolean attractModeActive = true;
-	boolean soundPlaying;
 	boolean allCleared;
 
 	static final int rows = 16;
@@ -62,8 +61,8 @@ public class GamePanel extends JPanel implements Runnable {
 		ballColor1 = Color.white;
 		ballColor2 = Color.blue;
 
-		paddleColor1 = Color.ORANGE;
-		paddleColor2 = Color.MAGENTA;
+		paddleColor1 = Color.white;
+		paddleColor2 = Color.blue;
 
 		try {
 			InputStream fontLocation = getClass().getResourceAsStream("fonts/Atari.ttf");
@@ -92,9 +91,11 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void newPaddles() {
-		paddle1 = new Paddle((GAME_WIDTH - PADDLE_WIDTH) / 2, GAME_HEIGHT - (PADDLE_HEIGHT - BORDER_OFFSET / 2) - 50,
+		paddle1 = new Paddle((GAME_WIDTH - PADDLE_WIDTH) / 2 - 50,
+				GAME_HEIGHT - (PADDLE_HEIGHT - BORDER_OFFSET / 2) - 50,
 				PADDLE_WIDTH, PADDLE_HEIGHT);
-		paddle2 = new Paddle((GAME_WIDTH - PADDLE_WIDTH) / 2, GAME_HEIGHT - (PADDLE_HEIGHT - BORDER_OFFSET / 2) - 50,
+		paddle2 = new Paddle((GAME_WIDTH - PADDLE_WIDTH) / 2 + 50,
+				GAME_HEIGHT - (PADDLE_HEIGHT - BORDER_OFFSET / 2) - 50,
 				PADDLE_WIDTH, PADDLE_HEIGHT);
 
 	}
@@ -108,11 +109,13 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void newBall() {
-		ball1 = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2), (GAME_HEIGHT / 2) - (BALL_DIAMETER / 2), BALL_DIAMETER,
+		ball1 = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2) - 50, (GAME_HEIGHT / 2) - (BALL_DIAMETER / 2),
+				BALL_DIAMETER,
 				BALL_DIAMETER);
 		ball1.setDY(1);
 
-		ball2 = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2), (GAME_HEIGHT / 2) - (BALL_DIAMETER / 2), BALL_DIAMETER,
+		ball2 = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2) + 50, (GAME_HEIGHT / 2) - (BALL_DIAMETER / 2),
+				BALL_DIAMETER,
 				BALL_DIAMETER);
 		ball2.setDY(1);
 		hits = 0;
@@ -665,7 +668,7 @@ public class GamePanel extends JPanel implements Runnable {
 		newBricks();
 		destroyWelcome();
 
-		lives = 10;
+		lives = 15;
 		score = 0;
 
 		ballColor1 = Color.white;
