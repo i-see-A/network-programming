@@ -1,5 +1,4 @@
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -126,22 +125,26 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 							// 게임룸 UI 그리기
 							drawGameRoomUI(cm);
 							break;
-						case "204": //게임플레이창 그리기
+						case "204": // 게임플레이창 그리기
 							drawGame(cm);
 							break;
 						case "205":
-							//상대편 키코드 받아옴
+							// 상대편 키코드 받아옴
 							System.out.println("상대편 키코드 받아옴" + cm.keyCode);
-							//cm.keyCode가 스페이스바면 게임 시작
-							if(cm.keyCode == 32) {
+							// cm.keyCode가 스페이스바면 게임 시작
+							if (cm.keyCode == 32) {
 								panel.attractModeActive = false;
 								panel.beginGame();
 							} else if (cm.keyCode == 37) {
+								panel.paddle1.setDeltaX(-1);
+							} else if (cm.keyCode == 39) {
+								panel.paddle1.setDeltaX(+1);
+							} else if (cm.keyCode == 65) {
 								panel.paddle2.setDeltaX(-1);
-							} else if (cm.keyCode == 39){
+							} else if (cm.keyCode == 67) {
 								panel.paddle2.setDeltaX(+1);
 							}
-							
+
 					}
 				} catch (IOException e) {
 					System.out.println("ois.readObject() error");
@@ -412,30 +415,30 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		jframe.pack();
 		jframe.setVisible(true);
 	}
-	
-	//여기서부터 게임
-	class GameFrame extends JFrame {
-	
-	GamePanel panel;
-	
-	GameFrame() { //costruttore	
-		
-		panel = new GamePanel();
-		
-		
-		this.getContentPane().add(panel); //finestra Swing
-		
-		this.setTitle("Bricks Crusher: Break the Bricks");
-		this.setResizable(false);
-		this.setBackground(Color.black);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.pack();
-		this.setVisible(true);
-		this.setLocationRelativeTo(null);
-	
-	} //end costruttore
 
-} 
+	// 여기서부터 게임
+	class GameFrame extends JFrame {
+
+		GamePanel panel;
+
+		GameFrame() { // costruttore
+
+			panel = new GamePanel();
+
+			this.getContentPane().add(panel); // finestra Swing
+
+			this.setTitle("Bricks Crusher: Break the Bricks");
+			this.setResizable(false);
+			this.setBackground(Color.black);
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.pack();
+			this.setVisible(true);
+			this.setLocationRelativeTo(null);
+
+		} // end costruttore
+
+	}
+
 	class GamePanel extends JPanel implements Runnable {
 		static final int GAME_WIDTH = 700;
 		static final int GAME_HEIGHT = (int) (GAME_WIDTH * (0.8));
@@ -1044,11 +1047,11 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 
 					beginGame();
 				}
-				
-				InteractMsg cm = new InteractMsg(userName,"205");
-				cm.keyCode = e.getKeyCode(); //37 left, 39 right, 65 a(left), 68 d(right)
-				SendObject(cm); //keyCode서버로 보냄
-				System.out.println(cm.keyCode+"서버로 보냄");
+
+				InteractMsg cm = new InteractMsg(userName, "205");
+				cm.keyCode = e.getKeyCode(); // 37 left, 39 right, 65 a(left), 68 d(right)
+				SendObject(cm); // keyCode서버로 보냄
+				System.out.println(cm.keyCode + "서버로 보냄");
 			}
 
 			public void keyReleased(KeyEvent e) {
@@ -1068,11 +1071,11 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 				if (e.getKeyCode() == KeyEvent.VK_D && attractModeActive == false) {
 					paddle2.setDeltaX(0);
 				}
-				
-				InteractMsg cm = new InteractMsg(userName,"205");
-				cm.keyCode = e.getKeyCode(); //37 left, 39 right, 65 a(left), 68 d(right)
-				SendObject(cm); //keyCode서버로 보냄
-				System.out.println(cm.keyCode+"서버로 보냄");
+
+				// InteractMsg cm = new InteractMsg(userName, "205");
+				// cm.keyCode = e.getKeyCode(); // 37 left, 39 right, 65 a(left), 68 d(right)
+				// SendObject(cm); // keyCode서버로 보냄
+				// System.out.println(cm.keyCode + "서버로 보냄");
 
 			}
 
@@ -1113,7 +1116,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		}
 
 	} //
-	
+
 	class Ball extends Rectangle {
 
 		Random random;
@@ -1159,7 +1162,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		}
 
 	}
-	
+
 	class Brick extends Rectangle {
 
 		int id;
@@ -1212,96 +1215,92 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		}
 
 	}
-	
+
 	class Lives extends Rectangle {
 
-	    Lives(int x, int y, int width, int height) {
-	        super(x, y, width, height);
-	    }
+		Lives(int x, int y, int width, int height) {
+			super(x, y, width, height);
+		}
 
-	    public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, int lives) {
-	        int livesRemaining = lives;
-	        String messageToDisplay = Integer.toString(livesRemaining);
-	        FontMetrics fm = g.getFontMetrics();
+		public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, int lives) {
+			int livesRemaining = lives;
+			String messageToDisplay = Integer.toString(livesRemaining);
+			FontMetrics fm = g.getFontMetrics();
 
-	        g.setFont(atari);
-	        g.setColor(Color.white);
-	        g.drawString("LIVES " + messageToDisplay, (GAME_WIDTH) - 15 - fm.stringWidth("LIVES " + messageToDisplay),
-	                GAME_HEIGHT - 15);
-	    }
-
-	}
-	
-
-public class Paddle extends Rectangle {
-
-	int id;
-	int dy;
-	int dx;
-	int paddleSpeed = 4;
-
-	Paddle(int x, int y, int PADDLE_WIDTH, int PADDLE_HEIGHT) {
-
-		super(x, y, PADDLE_WIDTH, PADDLE_HEIGHT); // costruttore di Rectangle
+			g.setFont(atari);
+			g.setColor(Color.white);
+			g.drawString("LIVES " + messageToDisplay, (GAME_WIDTH) - 15 - fm.stringWidth("LIVES " + messageToDisplay),
+					GAME_HEIGHT - 15);
+		}
 
 	}
 
-	public void setDeltaY(int yDirection) {
-		dy = yDirection * paddleSpeed;
+	public class Paddle extends Rectangle {
+
+		int id;
+		int dy;
+		int dx;
+		int paddleSpeed = 4;
+
+		Paddle(int x, int y, int PADDLE_WIDTH, int PADDLE_HEIGHT) {
+
+			super(x, y, PADDLE_WIDTH, PADDLE_HEIGHT); // costruttore di Rectangle
+
+		}
+
+		public void setDeltaY(int yDirection) {
+			dy = yDirection * paddleSpeed;
+		}
+
+		public void setDeltaX(int xDirection) {
+			dx = xDirection * paddleSpeed;
+		}
+
+		public void move() {
+			y = y + dy;
+			x = x + dx;
+		}
+
+		public void draw(Graphics g, Color color) {
+			g.setColor(color);
+			g.fillRect(x, y, width, height);
+		}
+
 	}
 
-	public void setDeltaX(int xDirection) {
-		dx = xDirection * paddleSpeed;
+	class Score extends Rectangle {
+
+		Score(int x, int y, int width, int height) {
+			super(x, y, width, height);
+		}
+
+		public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, int score) {
+			int currentScore = score;
+			String messageToDisplay = Integer.toString(currentScore);
+
+			g.setFont(atari);
+			g.setColor(Color.white);
+			g.drawString("SCORE " + messageToDisplay, 15, (GAME_HEIGHT) - 15);
+		}
+
 	}
 
-	public void move() {
-		y = y + dy;
-		x = x + dx;
+	class Welcome extends Rectangle {
+
+		Welcome(int x, int y, int welcomeWidth, int welcomeHeight) {
+			super(x, y, welcomeWidth, welcomeHeight);
+		}
+
+		public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, String welcomeMessage) {
+			FontMetrics fm = g.getFontMetrics();
+			String messageToDisplay = welcomeMessage;
+
+			g.setFont(atari);
+			g.setColor(Color.white);
+			g.drawString(messageToDisplay, (GAME_WIDTH / 2) - fm.stringWidth(messageToDisplay) - 20,
+					(GAME_HEIGHT / 2) - fm.getHeight());
+		}
+
 	}
-
-	public void draw(Graphics g, Color color) {
-		g.setColor(color);
-		g.fillRect(x, y, width, height);
-	}
-
-}
-
-class Score extends Rectangle {
-	
-	Score(int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
-
-
-    public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, int score) {
-        int currentScore = score;
-        String messageToDisplay = Integer.toString(currentScore);
-
-        g.setFont(atari);
-        g.setColor(Color.white);
-        g.drawString("SCORE " + messageToDisplay, 15, (GAME_HEIGHT) - 15);
-    }
-	
-}
-
-
-class Welcome extends Rectangle {
-	
-	Welcome(int x, int y, int welcomeWidth, int welcomeHeight) {
-        super(x, y, welcomeWidth, welcomeHeight);
-    }
-
-
-    public void draw(Graphics g, Font atari, int GAME_WIDTH, int GAME_HEIGHT, String welcomeMessage) {
-        FontMetrics fm = g.getFontMetrics();
-        String messageToDisplay = welcomeMessage;
-
-        g.setFont(atari);
-        g.setColor(Color.white);
-        g.drawString(messageToDisplay, (GAME_WIDTH / 2) - fm.stringWidth(messageToDisplay) - 20, (GAME_HEIGHT / 2) - fm.getHeight());
-    }
-	
-}
-
 
 }

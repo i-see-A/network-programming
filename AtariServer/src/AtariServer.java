@@ -377,29 +377,17 @@ public class AtariServer extends JFrame {
 							AppendText("Game Start");
 							WriteAllObject(cm);
 							break;
-							
-						case "205": //키코드
-							int roomNum =0;
-							int userNum=0;
-							for(int i = 0; i < roomManager.room_vc.size(); i++) {
-								String[] userList = roomManager.room_vc.elementAt(i).currentUserList.split("/");
-								for(int j=0;j<userList.length;j++) {
-									if(userList[j] == userName) {
-										roomNum = i;
-									}
-								}
-							}
-							String[] userList = roomManager.room_vc.elementAt(roomNum).currentUserList.split("/");
-							for(int j=0;j<userList.length;j++) {
-								if(userList[j] != userName) { //상대방
-									System.out.println("상대방 " + userList[j]);
-									System.out.println("나 " + userName);
-									for(int k=0;k<user_vc.size();k++) {
-										UserService user = (UserService)user_vc.elementAt(k);
-										if(user.userName.matches(userList[j])) { //유저서비스 이름이 상대방이름이면
+
+						case "205": // 키코드
+							String[] userList = roomManager.room_vc.elementAt(cm.roomNum).currentUserList.split("/");
+							for (int j = 0; j < userList.length; j++) {
+								if (userList[j] != userName) { // 상대방
+									for (int k = 0; k < user_vc.size(); k++) {
+										UserService user = (UserService) user_vc.elementAt(k);
+										if (user.userName.matches(userList[j])) { // 유저서비스 이름이 상대방이름이면
 											System.out.println("유저서비스벡터상대방 " + user.userName);
 											user.WriteOneObject(cm);
-											AppendText(user.userName +"에게 " + cm.keyCode +"를 보냄");
+											AppendText(user.userName + "에게 " + cm.keyCode + "를 보냄");
 										}
 									}
 								}
