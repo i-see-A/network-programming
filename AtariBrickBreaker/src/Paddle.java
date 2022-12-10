@@ -1,5 +1,4 @@
 
-
 import java.awt.*;
 
 public class Paddle extends Rectangle {
@@ -28,8 +27,8 @@ public class Paddle extends Rectangle {
 		x = x + dx;
 	}
 
-	public void draw(Graphics g) {
-		g.setColor(new Color(160, 160, 255));
+	public void draw(Graphics g, Color color) {
+		g.setColor(color);
 		g.fillRect(x, y, width, height);
 	}
 

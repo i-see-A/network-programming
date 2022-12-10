@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합니다.
 	AtariClientMain acm = new AtariClientMain();
@@ -49,6 +50,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 
 	public Main(String userName, String ip_addr, String port_no) {
 		this.userName = userName;
+		jframe = new JFrame();
 		try {
 			socket = new Socket(ip_addr, Integer.parseInt(port_no));
 			oos = new ObjectOutputStream(socket.getOutputStream());
@@ -163,8 +165,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 			lblLobby.setFont(new Font("배달의민족 도현", Font.PLAIN, 52));
 			lblLobby.setBounds((int) (0.13 * w), (int) (0.125 * h), 300, 60);
 			add(lblLobby);
-			
-			
+
 			JLabel lblUserName = new JLabel("I'm " + userName);
 			lblUserName.setForeground(new Color(255, 255, 255));
 			lblUserName.setFont(new Font("배달의민족 도현", Font.PLAIN, 36));
@@ -273,7 +274,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 	public class GameRoomUI extends JPanel {
 
 		String gameRoomName; // 방 이름
-		String[] userNameList = new String[] { "NO USER", "NO USER", "NO USER", "NO USER" };
+		String[] userNameList = new String[] { "NO USER", "NO USER" };
 		String myName;
 		int roomNum;
 		String userlist;
@@ -283,7 +284,8 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		 * Create the panel.
 		 */
 		public GameRoomUI(int width, int height, int roomNum, String roomName, String[] userList, String userName) { // 게임방
-			int w = height; int h = height;																										// 틀
+			int w = height;
+			int h = height; // 틀
 			this.gameRoomName = roomName;
 			this.myName = userName;
 			this.roomNum = roomNum;
@@ -304,7 +306,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 			lblRoomName.setFont(new Font("배달의민족 도현", Font.PLAIN, 30));
 			lblRoomName.setBounds((int) (0.13 * w), (int) (0.125 * h), 300, 60);
 			add(lblRoomName);
-			
+
 			JButton btnStartButton = new JButton("START");
 			btnStartButton.setBounds((int) (0.13 * w), (int) (0.75 * h), 150, 50);
 			add(btnStartButton);
@@ -325,7 +327,7 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 				btnStartButton.setVisible(false);
 
 			JPanel slot_1 = new JPanel();
-			slot_1.setBackground(new Color(213, 234, 255)); 
+			slot_1.setBackground(new Color(213, 234, 255));
 			slot_1.setBounds((int) (0.13 * w), (int) (0.25 * h), 250, 200);
 			add(slot_1);
 			slot_1.setLayout(null);
@@ -369,19 +371,19 @@ public class Main extends JPanel { // 여기서 이제 서버랑 통신을 합�
 		String[] userList = receivedEnteredUserList.split("/");
 
 		// 게임방으로 화면 전환
-//		acm.game.remove(lobby);
+		// acm.game.remove(lobby);
 		gameroomUI = new GameRoomUI(width, height, cm.roomNum, receivedRoomName, userList, cm.userName);
-		JFrame frame = new JFrame();
-		frame.setSize(width,height);
-		frame.getContentPane().add(gameroomUI);
-		frame.setVisible(true);		
+		if (jframe != null)
+			jframe.remove(lobby);
+		jframe.setSize(width, height);
+		jframe.getContentPane().add(gameroomUI);
+		jframe.setVisible(true);
 	}
 
 	public void drawGame(InteractMsg cm) {
-		panel = new GamePanel();
-//		acm.getFrame().getContentPane().setVisible(false);
 		gameroomUI.setVisible(false);
-		jframe = new JFrame();
+		if (jframe != null)
+			jframe.remove(gameroomUI);
 		jframe.getContentPane().add(panel);
 		jframe.pack();
 		jframe.setVisible(true);

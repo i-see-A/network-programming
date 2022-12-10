@@ -194,8 +194,7 @@ public class AtariServer extends JFrame {
 		public void WriteAll(String str, int roomNum, String code) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserService user = (UserService) user_vc.elementAt(i);
-				if (user.UserStatus == "O")
-					user.WriteOne(str, roomNum, code);
+				user.WriteOne(str, roomNum, code);
 			}
 		}
 
@@ -203,8 +202,7 @@ public class AtariServer extends JFrame {
 		public void WriteAllObject(Object ob) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserService user = (UserService) user_vc.elementAt(i);
-				if (user.UserStatus == "O")
-					user.WriteOneObject(ob);
+				user.WriteOneObject(ob);
 			}
 		}
 
@@ -240,11 +238,11 @@ public class AtariServer extends JFrame {
 					client_socket = null;
 					ois = null;
 					oos = null;
+					Logout(); // 에러가난 현재 객체를 벡터에서 지운다
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				Logout(); // 에러가난 현재 객체를 벡터에서 지운다
 			}
 		}
 
@@ -260,11 +258,11 @@ public class AtariServer extends JFrame {
 					client_socket = null;
 					ois = null;
 					oos = null;
+					Logout();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				Logout();
 			}
 		}
 
@@ -370,7 +368,7 @@ public class AtariServer extends JFrame {
 									newRoomStatus,
 									newEnteredUser, roomManager.room_vc.elementAt(cm.roomNum).currentUserList);
 
-							WriteAllObject(cm); // 업데이트된 방 정보를 모두에게 보낸다.
+							WriteOneObject(cm); // 업데이트된 방 정보를 모두에게 보낸다.
 							msg = String.format("[CODE %s] %s(이)가 게임방 %s에 입장했습니다. 현재 인원은 %s명.\n", cm.code, cm.userName,
 									newRoomName, Integer.toString(newEnteredUser));
 							AppendText(msg);
@@ -419,7 +417,7 @@ public class AtariServer extends JFrame {
 		}
 
 		// 게임방 삭제
-		public void removeGameGroom(InteractMsg cm) {
+		public void removeGameRoom(InteractMsg cm) {
 			for (int i = 0; i < room_vc.size(); i++) {
 				if (cm.roomName == room_vc.elementAt(i).roomName) {
 					room_vc.remove(i);
