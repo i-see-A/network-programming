@@ -25,13 +25,16 @@ public class AtariClientMain { // 게임타이틀화면
 	private static final long serialVersionUID = 1L;
 	private JFrame frame;
 	private JTextField txtUserName;
-	private GameTitle gameTitle = new GameTitle(); // 게임 제목, 버튼들 들어있는 Jpanel
 	final String IP_ADDRESS = "127.0.0.1";
 	final String PORT_NUMBER = "30000";
+	private GameTitle gameTitle = new GameTitle();
 
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	GraphicsDevice gd = ge.getDefaultScreenDevice();
 
+	public Main game;
+	public final int VIEW_WIDTH = 700;
+	public final int VIEW_HEIGHT = (int) (VIEW_WIDTH * (0.8));
+	
 	/**
 	 * Launch the application.
 	 */
@@ -52,6 +55,7 @@ public class AtariClientMain { // 게임타이틀화면
 	 * Create the application.
 	 */
 	public AtariClientMain() {
+		System.out.println("안녕");
 		initialize();
 	}
 
@@ -83,14 +87,13 @@ public class AtariClientMain { // 게임타이틀화면
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		//frame은 여기꺼, panel만 계속해서 바꿔주는 형태로 간다.
 		frame = new JFrame();
-		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setBackground(new Color(255, 255, 255));
 		frame.setBackground(new Color(255, 255, 255));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
-		frame.setResizable(true);
+		frame.setResizable(false);
+		frame.setSize(VIEW_WIDTH,VIEW_HEIGHT);
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(gameTitle, BorderLayout.CENTER);
 	}
@@ -98,19 +101,18 @@ public class AtariClientMain { // 게임타이틀화면
 	class GameTitle extends JPanel {
 		Font BM_DOHYEON_BOLD = new Font("배달의민족 도현", Font.BOLD, 18);
 		Font COOKIE_RUN_BOLD = new Font("CookieRun_Bold", Font.BOLD, 18);
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-		int w = (int) dimension.getWidth();
-		int h = (int) dimension.getHeight();
+		int title_width =(int)(VIEW_WIDTH*0.3);
+		int title_height = (int)(VIEW_HEIGHT*0.3);
 
 		public GameTitle() {
 			// JPanel 게임 제목과, 이름 입력, 버튼 넣을
 			setBackground(Color.white);
 			setLayout(null);
 			setVisible(true);
-			setSize(800, 800);
+			setSize(title_width, title_height);
 
 			JLabel lblTitle = new JLabel("ATARI BRICK BREAKER");
-			lblTitle.setBounds((int) (0.5 * w - 300), (int) (0.5 * h - 200), 600, 60);
+			lblTitle.setBounds((int) (0.5 * VIEW_WIDTH - 300), (int) (0.5 * VIEW_HEIGHT - 150), 600, 60);
 			lblTitle.setForeground(new Color(0, 0, 0));
 			lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 			lblTitle.setFont(BM_DOHYEON_BOLD.deriveFont(Font.PLAIN, 52f));
@@ -120,27 +122,27 @@ public class AtariClientMain { // 게임타이틀화면
 			lblPhrase.setForeground(new Color(0, 128, 255));
 			lblPhrase.setFont(BM_DOHYEON_BOLD.deriveFont(Font.PLAIN, 18f));
 			lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-			lblPhrase.setBounds((int) (0.5 * w - 109), (int) (0.5 * h - 50), 250, 48);
+			lblPhrase.setBounds((int) (0.5 * VIEW_WIDTH - 109), (int) (0.5 * VIEW_HEIGHT - 50), 250, 48);
 			add(lblPhrase);
 
 			// UserName 입력
 			txtUserName = new JTextField();
-			txtUserName.setBounds((int) (0.5 * w - 150), (int) (0.5 * h), 300, 50);
+			txtUserName.setBounds((int) (0.5 * VIEW_WIDTH - 150), (int) (0.5 * VIEW_HEIGHT), 300, 50);
 			txtUserName.setColumns(10);
 			txtUserName.setFont(BM_DOHYEON_BOLD);
 			add(txtUserName);
 
 			// single play
 			JButton btnSingle = new JButton("Single");
-			btnSingle.setBounds((int) (0.5 * w - 200), (int) (0.5 * h + 150), 150, 40);
-			btnSingle.setFont(COOKIE_RUN_BOLD.deriveFont(Font.PLAIN, 24f));
+			btnSingle.setBounds((int) (0.5 * VIEW_WIDTH - 200), (int) (0.5 * VIEW_HEIGHT + 100), 150, 40);
+			btnSingle.setFont(BM_DOHYEON_BOLD.deriveFont(Font.PLAIN, 24f));
 			btnSingle.setBackground(new Color(192, 192, 192));
 			add(btnSingle);
 
 			JButton btnMulti = new JButton("Multi");
-			btnMulti.setFont(COOKIE_RUN_BOLD.deriveFont(Font.PLAIN, 24f));
+			btnMulti.setFont(BM_DOHYEON_BOLD.deriveFont(Font.PLAIN, 24f));
 			btnMulti.setBackground(Color.LIGHT_GRAY);
-			btnMulti.setBounds((int) (0.5 * w + 50), (int) (0.5 * h + 150), 150, 40);
+			btnMulti.setBounds((int) (0.5 * VIEW_WIDTH + 50), (int) (0.5 * VIEW_HEIGHT + 100), 150, 40);
 			add(btnMulti);
 
 			Myaction action = new Myaction();
@@ -159,8 +161,7 @@ public class AtariClientMain { // 게임타이틀화면
 			if (userName.length() == 0) { // userName 입력 안되었을 시
 				JOptionPane.showMessageDialog(null, "Enter your name before starting the game");
 			} else {
-				Main game = new Main(userName, IP_ADDRESS, PORT_NUMBER); // Main 객체가 생성이 되면서, 로그인 정보 서버에 보냄.
-
+				game = new Main(userName, IP_ADDRESS, PORT_NUMBER);
 				if (btn.getText().equals("Single")) {
 					game.panel = new GamePanel();
 					frame.getContentPane().add(game.panel);
@@ -170,8 +171,6 @@ public class AtariClientMain { // 게임타이틀화면
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					frame.pack();
 					frame.setVisible(true);
-					frame.setLocationRelativeTo(null);
-
 				} else if (btn.getText().equals("Multi")) {
 					frame.getContentPane().add(game.lobby);
 				}
@@ -188,8 +187,6 @@ public class AtariClientMain { // 게임타이틀화면
 		return txtUserName;
 	}
 
-	public GameTitle getGameTitle() {
-		return gameTitle;
-	}
-
 }
+
+
